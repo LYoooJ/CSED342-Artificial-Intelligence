@@ -172,7 +172,50 @@ class MinimaxAgent(MultiAgentSearchAgent):
     """
 
     # BEGIN_YOUR_ANSWER (our solution is 30 lines of code, but don't worry if you deviate from this)
-    raise NotImplementedError  # remove this line before writing code
+    def getNextAgent(currentAgent):
+      if currentAgent == gameState.getNumAgents() - 1:
+        return 0
+      else:
+        return currentAgent + 1
+
+    def getNextDepth(currentDepth, nextAgent):
+      if nextAgent == 0:
+        return currentDepth + 1
+      else:
+        return currentDepth
+
+    def value(currentDepth, agent, gameState):
+      if currentDepth == self.depth or gameState.isWin() or gameState.isLose():
+        return self.evaluationFunction(gameState), None
+
+      if agent == 0:
+        return maxValue(currentDepth, agent, gameState)
+      else:
+        return minValue(currentDepth, agent, gameState)
+
+    def minValue(currentDepth, agent, gameState):
+      legalMoves = gameState.getLegalActions(agent)
+      nextAgent = getNextAgent(agent)
+      nextDepth = getNextDepth(currentDepth, nextAgent)
+      scores = [value(nextDepth, nextAgent, gameState.generateSuccessor(agent, action)) for action in legalMoves]
+      bestScore, bestAction = min(scores, key=lambda x: x[0])
+      bestIndices = [index for index in range(len(scores)) if scores[index][0] == bestScore]
+      chosenIndex = random.choice(bestIndices)
+      return bestScore, legalMoves[chosenIndex]
+
+    def maxValue(currentDepth, agent, gameState):
+      legalMoves = gameState.getLegalActions(agent)
+      nextAgent = getNextAgent(agent)
+      nextDepth = getNextDepth(currentDepth, nextAgent)
+      scores = [value(nextDepth, nextAgent, gameState.generateSuccessor(agent, action)) for action in legalMoves]
+      bestScore, bestAction = max(scores, key=lambda x: x[0])
+      bestIndices = [index for index in range(len(scores)) if scores[index][0] == bestScore]
+      chosenIndex = random.choice(bestIndices)
+      return bestScore, legalMoves[chosenIndex]
+
+    score, action = value(0, self.index, gameState)
+    print(f"score: {score}, action: {action}")
+    return action
     # END_YOUR_ANSWER
 
 ######################################################################################
