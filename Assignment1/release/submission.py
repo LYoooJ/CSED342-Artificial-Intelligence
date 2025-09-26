@@ -348,6 +348,7 @@ def betterEvaluationFunction(currentGameState):
   numAgents = currentGameState.getNumAgents()
   ghostStates = [currentGameState.getGhostState(idx) for idx in range(1, numAgents)]
   scaredGhostStates = [ghostState for ghostState in ghostStates if ghostState.scaredTimer > 0]
+  normalGhostStates = [ghostState for ghostState in ghostStates if ghostState.scaredTimer == 0]
   numScaredGhosts = len(scaredGhostStates)
   currentScore = currentGameState.getScore()
 
@@ -367,14 +368,14 @@ def betterEvaluationFunction(currentGameState):
   features.append(-currentGameState.getNumFood())
   weights.append(1)
 
-  # # Ghost가 멀리 있어야 좋은 점수
+  # normal Ghost가 멀리 있어야 좋은 점수
   ghostPositions = currentGameState.getGhostPositions()
-  totalGhostDist = 0
+  totalNormalGhostDist = 0
   minGhostDist = float('inf')
-  for ghostPosition in ghostPositions:
-    x, y = ghostPosition
+  for normalGhostState in normalGhostStates:
+    x, y = normalGhostState.getPosition()
     ghostDist = manhattan(pacmanX, pacmanY, x, y)
-    totalGhostDist += ghostDist
+    totalNormalGhostDist += ghostDist
     minGhostDist = min(minGhostDist, ghostDist)
 
   if minGhostDist == 0:
@@ -384,7 +385,7 @@ def betterEvaluationFunction(currentGameState):
   features.append(1 / minGhostDist)
   weights.append(-1)
 
-  features.append(totalGhostDist)
+  features.append(totalNormalGhostDist)
   weights.append(0.01)
 
   # Ghost 상태(ScaredTimer가 길면 좋음)
@@ -423,7 +424,7 @@ def betterEvaluationFunction(currentGameState):
     if minScaredGhostDist == 0:
       minScaredGhostDist = 0.01
     features.append(1 / minScaredGhostDist)
-    weights.append(20)
+    weights.append(100)
 
   for i in range(len(features)):
     currentScore += weights[i] * features[i]
