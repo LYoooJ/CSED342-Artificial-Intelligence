@@ -399,6 +399,8 @@ def betterEvaluationFunction(currentGameState):
   # # Capsule이랑 가까워지면 좋음
   if numScaredGhosts == 0:
     capsulePositions = currentGameState.getCapsules()
+    features.append(len(capsulePositions))
+    weights.append(-10)
     totalCapsuleDist = 0
     minCapsuleDist = float('inf')
     for capsulePosition in capsulePositions:
