@@ -366,7 +366,7 @@ def betterEvaluationFunction(currentGameState):
 
   # # Food penalty
   features.append(-currentGameState.getNumFood())
-  weights.append(1)
+  weights.append(5)
 
   # normal Ghost가 멀리 있어야 좋은 점수
   ghostPositions = currentGameState.getGhostPositions()
