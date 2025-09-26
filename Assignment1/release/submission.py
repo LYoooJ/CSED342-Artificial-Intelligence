@@ -337,8 +337,98 @@ def betterEvaluationFunction(currentGameState):
   Your extreme, unstoppable evaluation function (problem 4).
   """
 
-  # BEGIN_YOUR_ANSWER (our solution is 60 lines of code, but don't worry if you deviate from this)
-  raise NotImplementedError  # remove this line before writing code
+  # BEGIN_YOUR_ANSWER (our solution is 60 lines of code, but don't worry if you deviate from this)  
+  def manhattan(x1, y1, x2, y2):
+    return abs(x1 - x2) + abs(y1 - y2)
+  
+  features = []
+  weights = []
+
+  pacmanX, pacmanY = currentGameState.getPacmanPosition()
+  numAgents = currentGameState.getNumAgents()
+  ghostStates = [currentGameState.getGhostState(idx) for idx in range(1, numAgents)]
+  scaredGhostStates = [ghostState for ghostState in ghostStates if ghostState.scaredTimer > 0]
+  numScaredGhosts = len(scaredGhostStates)
+  currentScore = currentGameState.getScore()
+
+  # 가장 가까운 food랑 얼마나 가까운지
+  foodPositions = currentGameState.getFood()
+  min_ = float('inf')
+  for x in range(foodPositions.width):
+    for y in range(foodPositions.height):
+      if foodPositions[x][y]:
+        min_ = min(min_, manhattan(pacmanX, pacmanY, x, y))
+  if (min_ == 0):
+    min_ = 0.1
+  features.append(1 / min_)
+  weights.append(5)
+
+  # # Food penalty
+  features.append(-currentGameState.getNumFood())
+  weights.append(1)
+
+  # # Ghost가 멀리 있어야 좋은 점수
+  ghostPositions = currentGameState.getGhostPositions()
+  totalGhostDist = 0
+  minGhostDist = float('inf')
+  for ghostPosition in ghostPositions:
+    x, y = ghostPosition
+    ghostDist = manhattan(pacmanX, pacmanY, x, y)
+    totalGhostDist += ghostDist
+    minGhostDist = min(minGhostDist, ghostDist)
+
+  if minGhostDist == 0:
+    minGhostDist = 0.0001
+  elif minGhostDist == 1:
+    minGhostDist = 0.001
+  features.append(1 / minGhostDist)
+  weights.append(-1)
+
+  features.append(totalGhostDist)
+  weights.append(0.01)
+
+  # Ghost 상태(ScaredTimer가 길면 좋음)
+  totalScaredTime = 0
+  for idx in range(1, numAgents):
+    ghostState = currentGameState.getGhostState(idx)
+    totalScaredTime += ghostState.scaredTimer
+  features.append(totalScaredTime)
+  weights.append(0.1)
+
+  # # Capsule이랑 가까워지면 좋음
+  if numScaredGhosts == 0:
+    capsulePositions = currentGameState.getCapsules()
+    totalCapsuleDist = 0
+    minCapsuleDist = float('inf')
+    for capsulePosition in capsulePositions:
+      x, y = capsulePosition
+      capsuleDist = manhattan(pacmanX, pacmanY, x, y)
+      totalCapsuleDist += capsuleDist
+      minCapsuleDist = min(minCapsuleDist, capsuleDist)
+    
+    if minCapsuleDist == 0:
+      minCapsuleDist = 0.0001
+    features.append(1 / minCapsuleDist)
+    weights.append(20)
+    features.append(-totalCapsuleDist)
+    weights.append(0.01)
+  
+  if numScaredGhosts > 0:
+    minScaredGhostDist = float('inf')
+    for scaredGhostState in scaredGhostStates:
+      x, y = scaredGhostState.getPosition()
+      scaredGhostDist = manhattan(pacmanX, pacmanY, x, y)
+      minScaredGhostDist = min(minScaredGhostDist, scaredGhostDist)
+
+    if minScaredGhostDist == 0:
+      minScaredGhostDist = 0.01
+    features.append(1 / minScaredGhostDist)
+    weights.append(20)
+
+  for i in range(len(features)):
+    currentScore += weights[i] * features[i]
+
+  return currentScore
   # END_YOUR_ANSWER
 
 # Abbreviation
