@@ -187,25 +187,22 @@ class MinimaxAgent(MultiAgentSearchAgent):
       else:
         return minValue(currentDepth, agent, gameState)
 
-    def minValue(currentDepth, agent, gameState):
-      legalMoves = gameState.getLegalActions(agent)
-      nextAgent, nextDepth = getNextAgentAndDepth(agent, currentDepth)
-      scores = [value(nextDepth, nextAgent, gameState.generateSuccessor(agent, action)) for action in legalMoves]
-      bestScore, bestAction = min(scores, key=lambda x: x[0])
-      bestIndices = [index for index in range(len(scores)) if scores[index][0] == bestScore]
-      chosenIndex = random.choice(bestIndices)
-      return bestScore, legalMoves[chosenIndex]
-
     def maxValue(currentDepth, agent, gameState):
       legalMoves = gameState.getLegalActions(agent)
       nextAgent, nextDepth = getNextAgentAndDepth(agent, currentDepth)
       scores = [value(nextDepth, nextAgent, gameState.generateSuccessor(agent, action)) for action in legalMoves]
-      bestScore, bestAction = max(scores, key=lambda x: x[0])
-      bestIndices = [index for index in range(len(scores)) if scores[index][0] == bestScore]
-      chosenIndex = random.choice(bestIndices)
-      return bestScore, legalMoves[chosenIndex]
+      bestIndex, (bestScore, bestAction) = max(enumerate(scores), key=lambda x: x[1][0])
+      return bestScore, legalMoves[bestIndex]
+
+    def minValue(currentDepth, agent, gameState):
+      legalMoves = gameState.getLegalActions(agent)
+      nextAgent, nextDepth = getNextAgentAndDepth(agent, currentDepth)
+      scores = [value(nextDepth, nextAgent, gameState.generateSuccessor(agent, action)) for action in legalMoves]
+      bestIndex, (bestScore, bestAction) = min(enumerate(scores), key=lambda x: x[1][0])
+      return bestScore, legalMoves[bestIndex]
 
     score, action = value(0, self.index, gameState)
+    # print(f"score: {score}, action: {action}")
     return action
     # END_YOUR_ANSWER
 
@@ -234,10 +231,9 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
         return self.evaluationFunction(gameState), None
 
       if agent == 0:
-        score, action = maxValue(currentDepth, agent, gameState, alpha, beta)        
+        return maxValue(currentDepth, agent, gameState, alpha, beta)        
       else:
-        score, action = minValue(currentDepth, agent, gameState, alpha, beta)
-      return score, action
+        return minValue(currentDepth, agent, gameState, alpha, beta)
 
     def maxValue(currentDepth, agent, gameState, alpha, beta):
       legalMoves = gameState.getLegalActions(agent)
@@ -253,10 +249,8 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
         if alpha == None or alpha < value_:
           alpha = value_
 
-      bestScore, bestAction = max(scores, key=lambda x: x[0])
-      bestIndices = [index for index in range(len(scores)) if scores[index][0] == bestScore]
-      chosenIndex = random.choice(bestIndices)
-      return bestScore, legalMoves[chosenIndex]
+      bestIndex, (bestScore, bestAction) = max(enumerate(scores), key=lambda x: x[1][0])
+      return bestScore, legalMoves[bestIndex]
 
     def minValue(currentDepth, agent, gameState, alpha, beta):
       legalMoves = gameState.getLegalActions(agent)
@@ -272,12 +266,11 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
         if beta == None or beta > value_:
           beta = value_
 
-      bestScore, bestAction = min(scores, key=lambda x: x[0])
-      bestIndices = [index for index in range(len(scores)) if scores[index][0] == bestScore]
-      chosenIndex = random.choice(bestIndices)
-      return bestScore, legalMoves[chosenIndex]
+      bestIndex, (bestScore, bestAction) = min(enumerate(scores), key=lambda x: x[1][0])
+      return bestScore, legalMoves[bestIndex]
 
     score, action = value(0, self.index, gameState, None, None)
+    # print(f"score: {score}, action: {action}")
     return action
     # END_YOUR_ANSWER
 
@@ -298,7 +291,42 @@ class ExpectimaxAgent(MultiAgentSearchAgent):
     """
 
     # BEGIN_YOUR_ANSWER (our solution is 30 lines of code, but don't worry if you deviate from this)
-    raise NotImplementedError  # remove this line before writing code
+    def getNextAgentAndDepth(currentAgent, currentDepth):
+      if currentAgent == gameState.getNumAgents() - 1:
+        return 0, currentDepth + 1
+      else:
+        return currentAgent + 1, currentDepth
+
+    def value(currentDepth, agent, gameState):
+      if currentDepth == self.depth or gameState.isWin() or gameState.isLose():
+        return self.evaluationFunction(gameState), None
+
+      if agent == 0:
+        return maxValue(currentDepth, agent, gameState)        
+      else:
+        return expValue(currentDepth, agent, gameState)
+
+    def maxValue(currentDepth, agent, gameState):
+      legalMoves = gameState.getLegalActions(agent)
+      nextAgent, nextDepth = getNextAgentAndDepth(agent, currentDepth)
+      scores = [value(nextDepth, nextAgent, gameState.generateSuccessor(agent, action)) for action in legalMoves]
+      bestIndex, (bestScore, bestAction) = max(enumerate(scores), key=lambda x: x[1][0])
+      return bestScore, legalMoves[bestIndex]
+
+    def expValue(currentDepth, agent, gameState):
+      legalMoves = gameState.getLegalActions(agent)
+      nextAgent, nextDepth = getNextAgentAndDepth(agent, currentDepth)
+
+      v = 0
+      prob = 1 / len(legalMoves)
+      for action in legalMoves:
+        value_, action_ = value(nextDepth, nextAgent, gameState.generateSuccessor(agent, action))
+        v += value_ * prob
+      return v, None
+
+    score, action = value(0, self.index, gameState)
+    # print(f"score: {score}, action: {action}")
+    return action
     # END_YOUR_ANSWER
 
 ######################################################################################
