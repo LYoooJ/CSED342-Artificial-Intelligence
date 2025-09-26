@@ -172,17 +172,11 @@ class MinimaxAgent(MultiAgentSearchAgent):
     """
 
     # BEGIN_YOUR_ANSWER (our solution is 30 lines of code, but don't worry if you deviate from this)
-    def getNextAgent(currentAgent):
+    def getNextAgentAndDepth(currentAgent, currentDepth):
       if currentAgent == gameState.getNumAgents() - 1:
-        return 0
+        return 0, currentDepth + 1
       else:
-        return currentAgent + 1
-
-    def getNextDepth(currentDepth, nextAgent):
-      if nextAgent == 0:
-        return currentDepth + 1
-      else:
-        return currentDepth
+        return currentAgent + 1, currentDepth
 
     def value(currentDepth, agent, gameState):
       if currentDepth == self.depth or gameState.isWin() or gameState.isLose():
@@ -195,8 +189,7 @@ class MinimaxAgent(MultiAgentSearchAgent):
 
     def minValue(currentDepth, agent, gameState):
       legalMoves = gameState.getLegalActions(agent)
-      nextAgent = getNextAgent(agent)
-      nextDepth = getNextDepth(currentDepth, nextAgent)
+      nextAgent, nextDepth = getNextAgentAndDepth(agent, currentDepth)
       scores = [value(nextDepth, nextAgent, gameState.generateSuccessor(agent, action)) for action in legalMoves]
       bestScore, bestAction = min(scores, key=lambda x: x[0])
       bestIndices = [index for index in range(len(scores)) if scores[index][0] == bestScore]
@@ -205,8 +198,7 @@ class MinimaxAgent(MultiAgentSearchAgent):
 
     def maxValue(currentDepth, agent, gameState):
       legalMoves = gameState.getLegalActions(agent)
-      nextAgent = getNextAgent(agent)
-      nextDepth = getNextDepth(currentDepth, nextAgent)
+      nextAgent, nextDepth = getNextAgentAndDepth(agent, currentDepth)
       scores = [value(nextDepth, nextAgent, gameState.generateSuccessor(agent, action)) for action in legalMoves]
       bestScore, bestAction = max(scores, key=lambda x: x[0])
       bestIndices = [index for index in range(len(scores)) if scores[index][0] == bestScore]
@@ -214,7 +206,6 @@ class MinimaxAgent(MultiAgentSearchAgent):
       return bestScore, legalMoves[chosenIndex]
 
     score, action = value(0, self.index, gameState)
-    print(f"score: {score}, action: {action}")
     return action
     # END_YOUR_ANSWER
 
@@ -232,7 +223,62 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
     """
 
     # BEGIN_YOUR_ANSWER (our solution is 42 lines of code, but don't worry if you deviate from this)
-    raise NotImplementedError  # remove this line before writing code
+    def getNextAgentAndDepth(currentAgent, currentDepth):
+      if currentAgent == gameState.getNumAgents() - 1:
+        return 0, currentDepth + 1
+      else:
+        return currentAgent + 1, currentDepth
+
+    def value(currentDepth, agent, gameState, alpha, beta):
+      if currentDepth == self.depth or gameState.isWin() or gameState.isLose():
+        return self.evaluationFunction(gameState), None
+
+      if agent == 0:
+        score, action = maxValue(currentDepth, agent, gameState, alpha, beta)        
+      else:
+        score, action = minValue(currentDepth, agent, gameState, alpha, beta)
+      return score, action
+
+    def maxValue(currentDepth, agent, gameState, alpha, beta):
+      legalMoves = gameState.getLegalActions(agent)
+      nextAgent, nextDepth = getNextAgentAndDepth(agent, currentDepth)
+      
+      scores = []
+      for action in legalMoves:
+        value_, action_ = value(nextDepth, nextAgent, gameState.generateSuccessor(agent, action), alpha, beta)
+        scores.append((value_, action_))
+        if beta != None and value_ >= beta: # Prune
+          break
+        
+        if alpha == None or alpha < value_:
+          alpha = value_
+
+      bestScore, bestAction = max(scores, key=lambda x: x[0])
+      bestIndices = [index for index in range(len(scores)) if scores[index][0] == bestScore]
+      chosenIndex = random.choice(bestIndices)
+      return bestScore, legalMoves[chosenIndex]
+
+    def minValue(currentDepth, agent, gameState, alpha, beta):
+      legalMoves = gameState.getLegalActions(agent)
+      nextAgent, nextDepth = getNextAgentAndDepth(agent, currentDepth)
+    
+      scores = []
+      for action in legalMoves:
+        value_, action_ = value(nextDepth, nextAgent, gameState.generateSuccessor(agent, action), alpha, beta)
+        scores.append((value_, action_))
+        if alpha != None and value_ <= alpha: # Prune
+          break
+        
+        if beta == None or beta > value_:
+          beta = value_
+
+      bestScore, bestAction = min(scores, key=lambda x: x[0])
+      bestIndices = [index for index in range(len(scores)) if scores[index][0] == bestScore]
+      chosenIndex = random.choice(bestIndices)
+      return bestScore, legalMoves[chosenIndex]
+
+    score, action = value(0, self.index, gameState, None, None)
+    return action
     # END_YOUR_ANSWER
 
 ######################################################################################
