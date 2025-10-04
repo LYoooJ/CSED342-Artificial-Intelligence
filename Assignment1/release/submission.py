@@ -235,42 +235,55 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
       else:
         return minValue(currentDepth, agent, gameState, alpha, beta)
 
+    # Alpha: MAX's best option on path to root
+    # Beta: MIN's best option on path to root
+
     def maxValue(currentDepth, agent, gameState, alpha, beta):
       legalMoves = gameState.getLegalActions(agent)
       nextAgent, nextDepth = getNextAgentAndDepth(agent, currentDepth)
       
-      scores = []
+      bestScore = float('-inf')
+      bestAction = None
       for action in legalMoves:
-        value_, action_ = value(nextDepth, nextAgent, gameState.generateSuccessor(agent, action), alpha, beta)
-        scores.append((value_, action_))
-        if beta != None and value_ >= beta: # Prune
-          break
-        
-        if alpha == None or alpha < value_:
-          alpha = value_
+        score_, _ = value(nextDepth, nextAgent, gameState.generateSuccessor(agent, action), alpha, beta)
 
-      bestIndex, (bestScore, bestAction) = max(enumerate(scores), key=lambda x: x[1][0])
-      return bestScore, legalMoves[bestIndex]
+        if score_ > bestScore:
+          bestScore = score_
+          bestAction = action
+        
+        # Prunning
+        if bestScore >= beta:
+          return bestScore, bestAction
+
+        if alpha < bestScore:
+          alpha = bestScore
+
+      return bestScore, bestAction
 
     def minValue(currentDepth, agent, gameState, alpha, beta):
       legalMoves = gameState.getLegalActions(agent)
       nextAgent, nextDepth = getNextAgentAndDepth(agent, currentDepth)
     
-      scores = []
+      bestScore = float('inf')
+      bestAction = None
       for action in legalMoves:
-        value_, action_ = value(nextDepth, nextAgent, gameState.generateSuccessor(agent, action), alpha, beta)
-        scores.append((value_, action_))
-        if alpha != None and value_ <= alpha: # Prune
-          break
+        score_, _ = value(nextDepth, nextAgent, gameState.generateSuccessor(agent, action), alpha, beta)
+
+        if score_ < bestScore:
+          bestScore = score_
+          bestAction = action
         
-        if beta == None or beta > value_:
-          beta = value_
+        # Prunning
+        if bestScore <= alpha:
+          return bestScore, bestAction
 
-      bestIndex, (bestScore, bestAction) = min(enumerate(scores), key=lambda x: x[1][0])
-      return bestScore, legalMoves[bestIndex]
+        if beta > bestScore:
+          beta = bestScore
 
-    score, action = value(0, self.index, gameState, None, None)
-    # print(f"score: {score}, action: {action}")
+      return bestScore, bestAction
+
+    score, action = value(0, self.index, gameState, float('-inf'), float('inf'))
+    print(f"score: {score}, action: {action}")
     return action
     # END_YOUR_ANSWER
 
@@ -351,8 +364,9 @@ def betterEvaluationFunction(currentGameState):
   normalGhostStates = [ghostState for ghostState in ghostStates if ghostState.scaredTimer == 0]
   numScaredGhosts = len(scaredGhostStates)
   currentScore = currentGameState.getScore()
-
+  # scared Ghost인데 pacman으로부터 너무 멀어서 시간 안에 도달이 불가능한 경우
   # 가장 가까운 food랑 얼마나 가까운지
+  
   foodPositions = currentGameState.getFood()
   min_ = float('inf')
   for x in range(foodPositions.width):
