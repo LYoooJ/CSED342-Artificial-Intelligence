@@ -406,7 +406,7 @@ def betterEvaluationFunction(currentGameState):
     weights.append(-1000.0)
   else:
     features.append(1 / 2 ** minGhostDist)
-    weights.append(-100.0)
+    weights.append(-150.0)
 
   # How close is pacman to the nearest capsule when there is no scared ghost?
   scaredGhostStates = [ghostState for ghostState in ghostStates if ghostState.scaredTimer > 0]
