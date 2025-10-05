@@ -403,7 +403,7 @@ def betterEvaluationFunction(currentGameState):
 
   if minGhostDist == 0:
     features.append(1)
-    weights.append(-1000)
+    weights.append(-1000.0)
   else:
     features.append(1 / 2 ** minGhostDist)
     weights.append(-100.0)
@@ -414,7 +414,7 @@ def betterEvaluationFunction(currentGameState):
   if numScaredGhosts == 0:
     capsulePositions = currentGameState.getCapsules()
     features.append(len(capsulePositions))
-    weights.append(-50)
+    weights.append(-50.0)
     minCapsuleDist = float('inf')
     for capsulePosition in capsulePositions:
       x, y = capsulePosition
@@ -422,24 +422,20 @@ def betterEvaluationFunction(currentGameState):
       minCapsuleDist = min(minCapsuleDist, capsuleDist)
     
     features.append(1 / 2 ** minCapsuleDist)
-    weights.append(100)
+    weights.append(100.0)
 
   # How close is pacman to the nearest scared ghost and all scared ghosts?
   if numScaredGhosts > 0:
     minScaredGhostDist = float('inf')
-    totalScaredGhostDist = 0
     for scaredGhostState in scaredGhostStates:
       x, y = scaredGhostState.getPosition()
       scaredGhostDist = manhattan(pacmanX, pacmanY, x, y)
-      totalScaredGhostDist += scaredGhostDist
+      if scaredGhostState.scaredTimer < scaredGhostDist:
+        continue
       minScaredGhostDist = min(minScaredGhostDist, scaredGhostDist)
 
-    if minScaredGhostDist == 0:
-      features.append(1)
-      weights.append(500)
-    else:
-      features.append(1 / 2 ** minScaredGhostDist)
-      weights.append(300)
+    features.append(1 / 2 ** minScaredGhostDist)
+    weights.append(300.0)
   
   # Food penalty
   features.append(currentGameState.getNumFood())
