@@ -1,8 +1,8 @@
 ## ID: 20220127 NAME: Lim, Yoojin
 ######################################################################################
 # Problem 2a
-# minimax value of the root node: 12345
-# pruned edges (in order): a, b, c, d, ...
+# minimax value of the root node: 5
+# pruned edges (in order): h, m, t, x
 ######################################################################################
 
 from util import manhattanDistance
@@ -25,7 +25,7 @@ class ReflexAgent(Agent):
     self.lastPositions = []
     self.dc = None
 
-
+ 
   def getAction(self, gameState):
     """
     getAction chooses among the best options according to the evaluation function.
@@ -241,7 +241,8 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
         return currentAgent + 1, currentDepth
 
     def value(currentDepth, agent, gameState, alpha, beta):
-      if currentDepth == self.depth or gameState.isWin() or gameState.isLose():
+      # Terminal States: pacman won, pacman lost or there are no legal moves. 
+      if currentDepth == self.depth or gameState.isWin() or gameState.isLose() or not gameState.getLegalActions(agent):
         return self.evaluationFunction(gameState), None
 
       if agent == 0:
@@ -295,7 +296,6 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
       return bestScore, bestAction
 
     score, action = value(0, self.index, gameState, float('-inf'), float('inf'))
-    # print(f"score: {score}, action: {action}")
     return action
     # END_YOUR_ANSWER
 
