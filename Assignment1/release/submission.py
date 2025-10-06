@@ -323,7 +323,8 @@ class ExpectimaxAgent(MultiAgentSearchAgent):
         return currentAgent + 1, currentDepth
 
     def value(currentDepth, agent, gameState):
-      if currentDepth == self.depth or gameState.isWin() or gameState.isLose():
+      # Terminal States: pacman won, pacman lost or there are no legal moves. 
+      if currentDepth == self.depth or gameState.isWin() or gameState.isLose() or not gameState.getLegalActions(agent):
         return self.evaluationFunction(gameState), None
 
       if agent == 0:
@@ -357,7 +358,6 @@ class ExpectimaxAgent(MultiAgentSearchAgent):
       return v, None
 
     score, action = value(0, self.index, gameState)
-    # print(f"score: {score}, action: {action}")
     return action
     # END_YOUR_ANSWER
 
@@ -394,7 +394,6 @@ def betterEvaluationFunction(currentGameState):
 
   # How far is pacman from the nearest normal ghost?
   normalGhostStates = [ghostState for ghostState in ghostStates if ghostState.scaredTimer == 0]
-  ghostPositions = currentGameState.getGhostPositions()
   minGhostDist = float('inf')
   for normalGhostState in normalGhostStates:
     x, y = normalGhostState.getPosition()
@@ -413,6 +412,7 @@ def betterEvaluationFunction(currentGameState):
   numScaredGhosts = len(scaredGhostStates)
   if numScaredGhosts == 0:
     capsulePositions = currentGameState.getCapsules()
+    # Capsule penalty
     features.append(len(capsulePositions))
     weights.append(-50.0)
     minCapsuleDist = float('inf')
@@ -430,6 +430,7 @@ def betterEvaluationFunction(currentGameState):
     for scaredGhostState in scaredGhostStates:
       x, y = scaredGhostState.getPosition()
       scaredGhostDist = manhattan(pacmanX, pacmanY, x, y)
+      # If scared Ghost is not reachable
       if scaredGhostState.scaredTimer < scaredGhostDist:
         continue
       minScaredGhostDist = min(minScaredGhostDist, scaredGhostDist)
