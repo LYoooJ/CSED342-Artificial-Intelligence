@@ -19,7 +19,23 @@ def get_conditional_prob1(delta, epsilon, eta, c2, d2):
     """
     # Problem 1a
     # BEGIN_YOUR_ANSWER (our solution is 14 lines of code, but don't worry if you deviate from this)
-    raise NotImplementedError  # remove this line before writing code
+    def init(ct):
+        return delta if ct == 0 else 1 - delta
+
+    def movement(ct, ct_1):
+        return epsilon if ct != ct_1 else 1 - epsilon
+
+    def sensorNoise(dt, ct):
+        return eta if dt != ct else 1 - eta
+
+    def probC2D2(c2, d2):
+        return sum([init(c1) * movement(c2, c1) * sensorNoise(d2, c2) for c1 in [0, 1]])
+    
+    def probD2(d2):
+        return sum([probC2D2(c2, d2) for c2 in [0, 1]])
+
+
+    return probC2D2(c2, d2) / probD2(d2)
     # END_YOUR_ANSWER
 
 
@@ -36,7 +52,28 @@ def get_conditional_prob2(delta, epsilon, eta, c2, d2, d3):
     """
     # Problem 1b
     # BEGIN_YOUR_ANSWER (our solution is 17 lines of code, but don't worry if you deviate from this)
-    raise NotImplementedError  # remove this line before writing code
+    def init(ct):
+        return delta if ct == 0 else 1 - delta
+
+    def movement(ct, ct_1):
+        return epsilon if ct != ct_1 else 1 - epsilon
+
+    def sensorNoise(dt, ct):
+        return eta if dt != ct else 1 - eta
+    
+    def probC2(c2):
+        return sum([init(c1) * movement(c2, c1) for c1 in [0, 1]])
+
+    def probD3GivenC2(c2, d3):
+        return sum([movement(c3, c2) * sensorNoise(d3, c3) for c3 in [0, 1]])
+
+    def probC2D2D3(c2, d2, d3):
+        return sensorNoise(d2, c2) * probC2(c2) * probD3GivenC2(c2, d3)
+    
+    def probD2D3(d2, d3):
+        return sum([probC2D2D3(c2, d2, d3) for c2 in [0, 1]])
+
+    return probC2D2D3(c2, d2, d3) / probD2D3(d2, d3)
     # END_YOUR_ANSWER
 
 
@@ -47,7 +84,7 @@ def get_epsilon():
     """
     # Problem 1c
     # BEGIN_YOUR_ANSWER (our solution is 1 lines of code, but don't worry if you deviate from this)
-    raise NotImplementedError  # remove this line before writing code
+    return 0.5
     # END_YOUR_ANSWER
 
 
