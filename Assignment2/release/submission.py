@@ -160,7 +160,21 @@ class ExactInference(object):
         if self.skipElapse:
             return  ### ONLY FOR THE GRADER TO USE IN Problem 2
         # BEGIN_YOUR_ANSWER (our solution is 8 lines of code, but don't worry if you deviate from this)
-        raise NotImplementedError  # remove this line before writing code
+        currentBelief = util.Belief(self.belief.numRows, self.belief.numCols)
+        for r in range(self.belief.numRows): 
+            for c in range(self.belief.numCols):
+                currentBelief.setProb(r, c, self.belief.getProb(r, c)) 
+
+        for r in range(self.belief.numRows):
+            for c in range(self.belief.numCols):
+                self.belief.setProb(r, c, 0.0)
+                for r_ in range(self.belief.numRows):
+                    for c_ in range(self.belief.numCols):
+                        if ((r_, c_), (r, c)) not in self.transProb:
+                            continue
+                        self.belief.addProb(r, c, currentBelief.getProb(r_, c_) * self.transProb[((r_, c_), (r, c))])
+        
+        self.belief.normalize()
         # END_YOUR_ANSWER
 
     # Function: Get Belief
