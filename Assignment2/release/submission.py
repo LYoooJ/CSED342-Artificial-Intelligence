@@ -34,7 +34,6 @@ def get_conditional_prob1(delta, epsilon, eta, c2, d2):
     def probD2(d2):
         return sum([probC2D2(c2, d2) for c2 in [0, 1]])
 
-
     return probC2D2(c2, d2) / probD2(d2)
     # END_YOUR_ANSWER
 
@@ -164,16 +163,11 @@ class ExactInference(object):
         for r in range(self.belief.numRows): 
             for c in range(self.belief.numCols):
                 currentBelief.setProb(r, c, self.belief.getProb(r, c)) 
-
-        for r in range(self.belief.numRows):
-            for c in range(self.belief.numCols):
-                self.belief.setProb(r, c, 0.0)
-                for r_ in range(self.belief.numRows):
-                    for c_ in range(self.belief.numCols):
-                        if ((r_, c_), (r, c)) not in self.transProb:
-                            continue
-                        self.belief.addProb(r, c, currentBelief.getProb(r_, c_) * self.transProb[((r_, c_), (r, c))])
+                self.belief.setProb(r, c, 0)
         
+        for (oldTile, newTile) in self.transProb:
+            self.belief.addProb(newTile[0], newTile[1], currentBelief.getProb(oldTile[0], oldTile[1]) * self.transProb[(oldTile, newTile)])
+
         self.belief.normalize()
         # END_YOUR_ANSWER
 
@@ -264,7 +258,7 @@ class ParticleFilter(object):
         def getDist(agentX, agentY, row, col):
             return math.sqrt(((agentX - util.colToX(col)) ** 2 + (agentY - util.rowToY(row)) ** 2))
         
-        # Reweight the particles
+        # Weight the particles
         particleWeights = collections.defaultdict(float)
         for tile in self.particles:
             dist = getDist(agentX, agentY, tile[0], tile[1])
@@ -304,8 +298,9 @@ class ParticleFilter(object):
         newParticles = collections.defaultdict(int)
 
         for tile in self.particles:
-            for i in range(self.particles[tile]):
-                newParticles[util.weightedRandomChoice(self.transProbDict[tile])] += 1
+            if tile in self.transProbDict:
+                for i in range(self.particles[tile]):
+                    newParticles[util.weightedRandomChoice(self.transProbDict[tile])] += 1
         self.particles = newParticles
         # END_YOUR_ANSWER
 
