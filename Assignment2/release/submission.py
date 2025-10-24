@@ -299,7 +299,7 @@ class ParticleFilter(object):
 
         for tile in self.particles:
             if tile in self.transProbDict:
-                for i in range(self.particles[tile]):
+                for _ in range(self.particles[tile]):
                     newParticles[util.weightedRandomChoice(self.transProbDict[tile])] += 1
         self.particles = newParticles
         # END_YOUR_ANSWER
