@@ -21,7 +21,7 @@ def problem_1a():
         pretty, good, bad, plot, not, scenery
     """
     # BEGIN_YOUR_ANSWER (our solution is 1 lines of code, but don't worry if you deviate from this)
-    raise NotImplementedError  # remove this line before writing code
+    return {'pretty': 1, 'good': 0, 'bad': -1, 'plot': -1, 'not': -1, 'scenery': 0 }
     # END_YOUR_ANSWER
 
 
@@ -42,7 +42,13 @@ def extractWordFeatures(x):
     Example: "I am what I am" --> {'I': 2, 'am': 2, 'what': 1}
     """
     # BEGIN_YOUR_ANSWER (our solution is 6 lines of code, but don't worry if you deviate from this)
-    raise NotImplementedError  # remove this line before writing code
+    features = collections.defaultdict(int)
+    for word in x.split():
+        if word in features:
+            features[word] += 1
+        else:
+            features[word] = 1
+    return features
     # END_YOUR_ANSWER
 
 
