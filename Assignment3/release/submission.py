@@ -42,7 +42,7 @@ def extractWordFeatures(x):
     Example: "I am what I am" --> {'I': 2, 'am': 2, 'what': 1}
     """
     # BEGIN_YOUR_ANSWER (our solution is 6 lines of code, but don't worry if you deviate from this)
-    features = collections.defaultdict(int)
+    features = {}
     for word in x.split():
         if word in features:
             features[word] += 1
@@ -78,7 +78,12 @@ def learnPredictor(trainExamples, testExamples, featureExtractor, numIters, eta)
         return 1 / (1 + math.exp(-n))
 
     # BEGIN_YOUR_ANSWER (our solution is 14 lines of code, but don't worry if you deviate from this)
-    raise NotImplementedError  # remove this line before writing code
+    for _ in range(numIters):
+        for x, y in trainExamples:
+            phi = featureExtractor(x)
+            coeff = -y * sigmoid(-y * dotProduct(weights, phi))
+            increment(weights, -eta * coeff, phi)
+
     # END_YOUR_ANSWER
     return weights
 
