@@ -42,7 +42,7 @@ def extractWordFeatures(x):
     Example: "I am what I am" --> {'I': 2, 'am': 2, 'what': 1}
     """
     # BEGIN_YOUR_ANSWER (our solution is 6 lines of code, but don't worry if you deviate from this)
-    features = {}
+    features = collections.defaultdict(int)
     for word in x.split():
         if word in features:
             features[word] += 1
@@ -101,6 +101,17 @@ def extractBigramFeatures(x):
     {('am', 'what'): 1, 'what': 1, ('I', 'am'): 2, 'I': 2, ('what', 'I'): 1, 'am': 2, ('<s>', 'I'): 1, ('am', '</s>'): 1}
     """
     # BEGIN_YOUR_ANSWER (our solution is 5 lines of code, but don't worry if you deviate from this)
-    raise NotImplementedError  # remove this line before writing code
+    features = collections.defaultdict(int)
+    words = x.split()
+
+    for i in range(len(words)):
+        features[words[i]] += 1
+        if i > 0:
+            features[(words[i - 1], words[i])] += 1    
+
+    features[('<s>', words[0])] += 1
+    features[(words[-1], '</s>')] += 1    
+    
+    return features
     # END_YOUR_ANSWER
     return phi
