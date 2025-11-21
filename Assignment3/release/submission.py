@@ -42,12 +42,10 @@ def extractWordFeatures(x):
     Example: "I am what I am" --> {'I': 2, 'am': 2, 'what': 1}
     """
     # BEGIN_YOUR_ANSWER (our solution is 6 lines of code, but don't worry if you deviate from this)
-    features = collections.defaultdict(int)
+    features = {}
     for word in x.split():
-        if word in features:
-            features[word] += 1
-        else:
-            features[word] = 1
+        features[word] = features.get(word, 0) + 1
+
     return features
     # END_YOUR_ANSWER
 
@@ -101,16 +99,23 @@ def extractBigramFeatures(x):
     {('am', 'what'): 1, 'what': 1, ('I', 'am'): 2, 'I': 2, ('what', 'I'): 1, 'am': 2, ('<s>', 'I'): 1, ('am', '</s>'): 1}
     """
     # BEGIN_YOUR_ANSWER (our solution is 5 lines of code, but don't worry if you deviate from this)
-    features = collections.defaultdict(int)
+    features = {}
     words = x.split()
 
     for i in range(len(words)):
-        features[words[i]] += 1
-        if i > 0:
-            features[(words[i - 1], words[i])] += 1    
+        # Unigram
+        features[words[i]] = features.get(words[i], 0) + 1
 
-    features[('<s>', words[0])] += 1
-    features[(words[-1], '</s>')] += 1    
+        # Bigram
+        if i > 0:
+            bigram = (words[i - 1], words[i])
+            features[bigram] = features.get(bigram, 0) + 1
+
+    if len(words) > 0:
+        start = (('<s>', words[0]))
+        end = (words[-1], '</s>')
+        features[start] = features.get(start, 0) + 1
+        features[end] = features.get(end, 0) + 1
     
     return features
     # END_YOUR_ANSWER
