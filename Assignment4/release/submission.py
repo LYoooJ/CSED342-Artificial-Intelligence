@@ -150,7 +150,7 @@ def flatten(x: np.ndarray) -> np.ndarray:
         out : np.ndarray
             Flattened (1D) vector
     """
-    raise NotImplementedError
+    return x.flatten()
 
 
 
