@@ -34,7 +34,9 @@ def problem1a(H: int, W: int, k_H: int, k_W: int, P: int, S: int) -> tuple:
     Returns:
         (outH, outW): tuple of ints
     """
-    raise NotImplementedError
+    outH = (H + 2 * P - k_H) // S + 1
+    outW = (W + 2 * P - k_W) // S + 1
+    return (outH, outW)
 
 # ------------------------------------------------------------
 # Problem 1b
