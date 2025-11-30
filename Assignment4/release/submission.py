@@ -64,7 +64,7 @@ def conv2d(x: np.ndarray, w: np.ndarray, padding: int, stride: int) -> np.ndarra
     - You must implement padding and stride manually.
     - Use for-loops (no broadcasting tricks).
     """
-    C_in, H, W = x.shape
+    _, H, W = x.shape
     C_out, C_in, kH, kW = w.shape
 
     outH = (H + 2 * padding - kH) // stride + 1
@@ -209,4 +209,10 @@ def simple_cnn_forward(x: np.ndarray, params: Dict[str, np.ndarray]) -> np.ndarr
         logits : np.ndarray
             Class scores of shape (10,)
     """
-    raise NotImplementedError
+    z = conv2d(x, params["conv_w"], 1, 1) + params["conv_b"].reshape(-1, 1, 1)
+    a = relu(z)
+    p = maxpool2d(a, 2, 2)
+    f = flatten(p)
+    logits = fc2d(f, params["fc_W"], params["fc_b"])
+
+    return logits
