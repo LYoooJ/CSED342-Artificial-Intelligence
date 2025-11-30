@@ -173,7 +173,7 @@ def fc2d(f: np.ndarray, W: np.ndarray, b: np.ndarray) -> np.ndarray:
         logits : np.ndarray
             Output scores of shape (out_dim,)
     """
-    raise NotImplementedError
+    return W @ f + b
 
 
 
