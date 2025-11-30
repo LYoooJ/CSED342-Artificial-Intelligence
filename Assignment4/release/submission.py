@@ -121,9 +121,19 @@ def maxpool2d(x: np.ndarray, pool_size: int, stride: int) -> np.ndarray:
         out : np.ndarray
             Max-pooled feature map of shape (C, outH, outW)
     """
-    raise NotImplementedError
+    C, H, W = x.shape
+    
+    outH = (H - pool_size) // stride + 1
+    outW = (W - pool_size) // stride + 1
+    out = np.zeros((C, outH, outW))
+    
+    for r in range(outH):
+        for c in range(outW):
+            x_ = x[:, r * stride : r * stride + pool_size, c * stride : c * stride + pool_size]
+            for channel in range(C):
+                out[channel, r, c] = np.max(x_[channel])
 
-
+    return out
 
 # ------------------------------------------------------------
 # Problem 4 — Flatten
