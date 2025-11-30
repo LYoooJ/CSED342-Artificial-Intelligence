@@ -98,7 +98,7 @@ def relu(x: np.ndarray) -> np.ndarray:
         out : np.ndarray
             Same shape as x, with negative values replaced by 0
     """
-    raise NotImplementedError
+    return np.maximum(0, x)
 
 
 
