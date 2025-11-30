@@ -64,9 +64,24 @@ def conv2d(x: np.ndarray, w: np.ndarray, padding: int, stride: int) -> np.ndarra
     - You must implement padding and stride manually.
     - Use for-loops (no broadcasting tricks).
     """
-    raise NotImplementedError
+    C_in, H, W = x.shape
+    C_out, C_in, kH, kW = w.shape
 
+    outH = (H + 2 * padding - kH) // stride + 1
+    outW = (W + 2 * padding - kW) // stride + 1
 
+    x_padded = np.zeros((C_in, H + 2 * padding, W + 2 * padding))
+    x_padded[:, padding : H + padding, padding : W + padding] = x
+    out = np.zeros((C_out, outH, outW))
+    
+    for r in range(outH):
+        for c in range(outW):
+            x_ = x_padded[:, r * stride : r * stride + kH, c * stride : c * stride + kW]
+
+            for channel in range(C_out):
+                out[channel, r, c] = np.sum(x_ * w[channel])
+
+    return out
 
 # ------------------------------------------------------------
 # Problem 2 — ReLU
